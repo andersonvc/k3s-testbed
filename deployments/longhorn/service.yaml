@@ -1,0 +1,38 @@
+apiVersion: v1
+kind: Service
+metadata:
+  labels:
+    app: longhorn-ui
+  name: longhorn-frontend
+  namespace: core
+  annotations:
+    metallb.universe.tf/loadBalancerIPs: 192.168.50.244
+spec:
+  ports:
+  - port: 80
+    protocol: TCP
+    targetPort: 8000
+    name: http
+  selector:
+    app: longhorn-ui
+  type: LoadBalancer
+---
+apiVersion: traefik.io/v1alpha1
+kind: IngressRoute
+metadata:
+  name: longhorn-ingress
+  namespace: core
+  annotations:
+    traefik.ingress.kubernetes.io/router.entrypoints: websecure,web
+    traefik.ingress.kubernetes.io/router.middlewares: core-redirect@kubernetescrd
+    traefik.ingress.kubernetes.io/router.middlewares: core-traefik-dashboard-auth@kubernetescrd
+spec:
+  routes:
+    - match: Host(`longhorn.polyvaria.com`)
+      kind: Rule
+      services:
+      - name: longhorn-frontend
+        namespace: core
+        port: 80
+  tls:
+    secretName: polyvaria-wildcard-tls

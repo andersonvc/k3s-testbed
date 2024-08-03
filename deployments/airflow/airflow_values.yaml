@@ -1,0 +1,67 @@
+
+images:
+  migrationsWaitTimeout: 600
+  airflow:
+    repository: apache/airflow
+    tag: "2.8.1-python3.11"
+    pullPolicy: IfNotPresent
+
+
+airflow:
+  executor: KubernetesExecutor
+  extraEnv:
+  - name: AIRFLOW__WEBSERVER__SECRET_KEY
+    namespace: core
+    valueFrom:
+      secretKeyRef:
+        name: airflow-webserver-secret-key
+        key: value
+
+webserver:
+  service:
+    type: LoadBalancer
+    loadBalancerIP: 192.168.50.241
+    ports:
+    - name: airflow-ui
+      port: 80
+      targetPort: airflow-ui
+      protocol: TCP
+  livenessProbe:
+    timeoutSeconds: 30
+    initialDelaySeconds: 45
+  readinessProbe:
+    timeoutSeconds: 30
+    initialDelaySeconds: 45
+  startupProbe:
+    timeoutSeconds: 45
+
+multiNamespaceMode: true
+
+redis:
+  enabled: true
+
+postgresql:
+  enabled: true
+
+workers:
+  persistence:
+    enabled: true
+    size: 1Gi
+    storageClassName: longhorn
+
+triggerer:
+  enabled: false
+
+statsd:
+  enabled: false
+
+dags:
+  persistence:
+    enabled: false
+  gitSync:
+    enabled: true
+    repo: git@github.com:andersonvc/polyvaria-airflow-dags.git
+    branch: develop
+    subPath: "dags"
+    credentialsSecret: git-credentials
+    sshKeySecret: airflow-ssh-secret

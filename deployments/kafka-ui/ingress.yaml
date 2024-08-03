@@ -1,0 +1,46 @@
+apiVersion: traefik.io/v1alpha1
+kind: IngressRoute
+metadata:
+  name: kafka-schema-registry
+  namespace: core
+  annotations:
+    traefik.ingress.kubernetes.io/router.entrypoints: websecure,web
+    traefik.ingress.kubernetes.io/router.middlewares: core-redirect@kubernetescrd
+spec:
+  routes:
+    - match: Host(`schema-registry.polyvaria.com`) && PathPrefix(`/`)
+      kind: Rule
+      services:
+      - name: confluent-schema-registry
+        namespace: core
+        port: 8081
+  tls:
+    secretName: polyvaria-wildcard-tls
+---
+apiVersion: traefik.io/v1alpha1
+kind: IngressRoute
+metadata:
+  name: kafka-ui
+  namespace: core
+  annotations:
+    traefik.ingress.kubernetes.io/router.entrypoints: websecure,web
+    traefik.ingress.kubernetes.io/router.middlewares: core-redirect@kubernetescrd
+    traefik.ingress.kubernetes.io/router.middlewares: core-traefik-dashboard-auth@kubernetescrd
+spec:
+  routes:
+    - match: Host(`kafka-ui.polyvaria.com`) && PathPrefix(`/`)
+      kind: Rule
+      middlewares:
+        - name: redirect
+          namespace: core
+        - name: traefik-dashboard-auth
+          namespace: core
+
+      services:
+      - name: kafka-ui
+        namespace: core
+        port: 80
+  tls:
+    secretName: polyvaria-wildcard-tls
+---
+

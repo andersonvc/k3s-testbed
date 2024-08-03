@@ -1,0 +1,10 @@
+kafka:
+  enabled: false
+  auth:
+    protocol: {}
+  service:
+    ports:
+      client: {}
+externalKafka:
+  brokers:
+    - PLAINTEXT://polyvaria-cluster-kafka-bootstrap.core.svc.cluster.local:9092

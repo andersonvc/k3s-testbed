@@ -1,0 +1,19 @@
+apiVersion: traefik.io/v1alpha1
+kind: IngressRoute
+metadata:
+  name: airflow-ingress
+  namespace: core
+  annotations:
+    traefik.ingress.kubernetes.io/router.entrypoints: websecure,web
+    traefik.ingress.kubernetes.io/router.middlewares: core-redirect@kubernetescrd
+spec:
+  routes:
+    - match: Host(`airflow.polyvaria.com`) && PathPrefix(`/`)
+      kind: Rule
+      services:
+      - name: airflow-webserver
+        namespace: core
+        port: 80
+  tls:
+    secretName: polyvaria-wildcard-tls
+---

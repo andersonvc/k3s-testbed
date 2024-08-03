@@ -1,0 +1,6 @@
+yamlApplicationConfig:
+  kafka:
+    clusters:
+      - name: polyvaria-cluster
+        bootstrapServers: polyvaria-cluster-kafka-bootstrap.core.svc.cluster.local:9092
+        schemaRegistry: https://schema-registry.polyvaria.com:443

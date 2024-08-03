@@ -1,0 +1,22 @@
+apiVersion: traefik.io/v1alpha1
+kind: IngressRouteTCP
+metadata:
+  name: kafka-ingress
+  namespace: core
+spec:
+  entryPoints:
+    - websecure
+  routes:
+    - match: HostSNI(`broker-bootstrap.polyvaria.com`)
+      services:
+        - name: polyvaria-cluster-kafka-external-bootstrap
+          namespace: core
+          port: 9094
+    - match: HostSNI(`broker-0.polyvaria.com`)
+      services:
+        - name: polyvaria-cluster-dual-role-0
+          namespace: core
+          port: 9094
+  tls:
+    secretName: polyvaria-wildcard-tls
+    passthrough: true

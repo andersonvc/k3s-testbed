@@ -1,0 +1,37 @@
+replicaCount: 1
+kraft:
+  enabled: true
+  clusterId: 1
+
+controller:
+  replicaCount: 1
+
+listeners:
+  client:
+    protocol: 'PLAINTEXT'
+  controller:
+    protocol: 'PLAINTEXT'
+  interBroker:
+    protocol: 'PLAINTEXT'
+  external:
+    protocol: 'PLAINTEXT'
+
+externalAccess:
+  enabled: true
+  #autoDiscovery: true
+
+  controller:
+    service:
+      type: LoadBalancer
+      loadBalancerIPs:
+      - 192.168.50.245
+  broker:
+    service:
+      type: LoadBalancer
+      loadBalancerIPs:
+      - 192.168.50.246
+
+tls:
+  type: PEM
+  existingSecret: polyvaria-wildcard-tls
+  namespace: core

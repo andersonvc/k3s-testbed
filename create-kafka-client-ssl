@@ -1,0 +1,35 @@
+#!/bin/bash
+
+source ~/.secrets/k3s-setup-secrets
+KEYSTORE_PATH=/opt/ssl/k3s-cluster
+
+kubectl get -n core secret polyvaria-wildcard-tls -ojsonpath='{.data.tls\.key}' | base64 --decode > cert.key
+kubectl get -n core secret polyvaria-wildcard-tls -ojsonpath='{.data.tls\.crt}' | base64 --decode > certca.crt
+
+NUM=$(awk '/-----END CERTIFICATE-----/{print NR; exit}' certca.crt)
+awk -v num="$NUM" 'NR > num' certca.crt > ca.crt
+awk -v num="$NUM" 'NR <= num' certca.crt > cert.crt
+
+openssl pkcs12 -export -in "cert.crt" -inkey "cert.key" -name client.polyvaria.com -out "certs.p12" -passout pass:$KAFKA_SSL_PASSWORD
+
+rm -f $KEYSTORE_PATH/truststore.jks
+rm -f $KEYSTORE_PATH/keystore.jks
+rm -f $KEYSTORE_PATH/client.properties
+
+keytool -noprompt -importkeystore -deststorepass $KAFKA_SSL_PASSWORD -destkeystore "$KEYSTORE_PATH/keystore.jks" -srckeystore "certs.p12" -srcstoretype PKCS12 -srcstorepass $KAFKA_SSL_PASSWORD
+keytool -noprompt -import -alias caroot -keystore $KEYSTORE_PATH/keystore.jks -keyalg RSA -storepass $KAFKA_SSL_PASSWORD -file "ca.crt"
+keytool -noprompt -import -alias caroot -keystore $KEYSTORE_PATH/truststore.jks -keyalg RSA -storepass $KAFKA_SSL_PASSWORD -file "ca.crt"
+
+echo "security.protocol=SSL" > client.properties
+echo "ssl.truststore.location=$KEYSTORE_PATH/truststore.jks" >> client.properties
+echo "ssl.truststore.password=$KAFKA_SSL_PASSWORD" >> client.properties
+echo "ssl.keystore.location=$KEYSTORE_PATH/keystore.jks" >> client.properties
+echo "ssl.keystore.password=$KAFKA_SSL_PASSWORD" >> client.properties
+cp client.properties $KEYSTORE_PATH/
+
+cp cert.key $KEYSTORE_PATH/key.pem
+cp cert.crt $KEYSTORE_PATH/cert.pem
+cp ca.crt $KEYSTORE_PATH/ca.pem
+cp certs.p12 $KEYSTORE_PATH/
+
+rm -f cert.key certca.crt cert.crt ca.crt certs.p12 client.properties keystore.jks truststore.jks

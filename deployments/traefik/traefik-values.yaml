@@ -1,0 +1,54 @@
+globalArguments:
+  - "--global.sendanonymoususage=false"
+  - "--global.checknewversion=true"
+
+additionalArguments:
+  - "--serversTransport.insecureSkipVerify=true"
+  - "--log.level=INFO"
+
+deployment:
+  enabled: true
+  replicas: 1
+  annotations: {}
+  podAnnotations: {}
+  additionalContainers: []
+  initContainers: []
+
+ports:
+  kafka:
+    port: 9092
+    expose: 
+      default: true
+    exposedPort: 9092
+    protocol: TCP
+  web:
+    redirectTo:
+      port: websecure
+      priority: 10
+  websecure:
+    tls:
+      enabled: true
+
+ingressRoute:
+  dashboard:
+    enabled: true
+    matchRule: Host(`traefik.polyvaria.com`)
+    entryPoints: ["websecure"]
+    middlewares:
+      - name: traefik-dashboard-auth
+        namespace: core
+      - name: redirect
+        namespace: core
+
+rbac:
+  enabled: true
+
+service:
+  enabled: true
+  type: LoadBalancer
+  annotations: {}
+  labels: {}
+  spec:
+    loadBalancerIP: $TRAEFIK_PUBLIC_IP
+  loadBalancerSourceRanges: []
+  externalIPs: []

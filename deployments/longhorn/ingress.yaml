@@ -1,0 +1,24 @@
+apiVersion: traefik.io/v1alpha1
+kind: IngressRoute
+metadata:
+  name: longhorn-ingress
+  namespace: core
+  annotations:
+    traefik.ingress.kubernetes.io/router.entrypoints: websecure,web
+    traefik.ingress.kubernetes.io/router.middlewares: core-redirect@kubernetescrd
+    traefik.ingress.kubernetes.io/router.middlewares: core-traefik-dashboard-auth@kubernetescrd
+spec:
+  routes:
+    - match: Host(`longhorn.polyvaria.com`)
+      kind: Rule
+      middlewares:
+        - name: redirect
+          namespace: core
+        - name: traefik-dashboard-auth
+          namespace: core
+      services:
+      - name: longhorn-frontend
+        namespace: core
+        port: 80
+  tls:
+    secretName: polyvaria-wildcard-tls
