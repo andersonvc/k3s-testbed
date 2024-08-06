@@ -1,0 +1,38 @@
+apiVersion: traefik.io/v1alpha1
+kind: IngressRoute
+metadata:
+  name: spark
+  namespace: core
+  annotations:
+    traefik.ingress.kubernetes.io/router.entrypoints: websecure,web
+    traefik.ingress.kubernetes.io/router.middlewares: core-redirect@kubernetescrd
+spec:
+  routes:
+    - match: Host(`spark-ui.polyvaria.com`) && PathPrefix(`/`)
+      kind: Rule
+      services:
+      - name: spark-master-svc
+        namespace: core
+        port: 80
+  tls:
+    secretName: polyvaria-wildcard-tls
+---
+apiVersion: traefik.io/v1alpha1
+kind: IngressRoute
+metadata:
+  name: spark2
+  namespace: core
+  annotations:
+    traefik.ingress.kubernetes.io/router.entrypoints: sc
+    #traefik.ingress.kubernetes.io/router.middlewares: core-redirect@kubernetescrd
+spec:
+  routes:
+    - match: Host(`spark.polyvaria.com`) && PathPrefix(`/`)
+      kind: Rule
+      services:
+      - name: spark-master-svc
+        namespace: core
+
+        port: 7077
+  tls:
+    secretName: polyvaria-wildcard-tls

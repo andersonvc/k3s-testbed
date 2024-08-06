@@ -1,0 +1,60 @@
+service:
+  type: LoadBalancer
+  loadBalancerIPs:
+  - 192.168.50.242
+  ports:
+    http: 80
+    https: 443
+    cluster: 7077
+
+image:
+  registry: registry.polyvaria.com
+  repository: spark-base
+  tag: 0.6
+  imagePullPolicy: Always
+
+ingress:
+  enabled: true
+  hostname: spark2.polyvaria.com
+  #tls:
+  #  enabled: true
+  #  secretName: polyvaria-wildcard-tls
+
+master:
+  containerPorts:
+    http: 8080
+    https: 8480
+    cluster: 7077
+  configOptions:
+    -Dspark.ui.reverseProxy=true
+    -Dspark.ui.reverseProxyUrl=http://spark2.polyvaria.com
+  podSecurityContext:
+    enabled: true
+    fsGroupChangePolicy: Always
+    sysctls: []
+    supplementalGroups: []
+    fsGroup: 1001
+
+  containerSecurityContext:
+    enabled: true
+    seLinuxOptions: null
+    runAsUser: 1001
+    runAsGroup: 1001
+    runAsNonRoot: true
+    privileged: false
+    readOnlyRootFilesystem: false
+    allowPrivilegeEscalation: false
+    capabilities:
+      drop: ["ALL"]
+    seccompProfile:
+      type: "RuntimeDefault"
+
+worker:
+  configOptions:
+    -Dspark.ui.reverseProxy=true
+    -Dspark.ui.reverseProxyUrl=http://spark2.polyvaria.com
+
+initScripts:
+  spark-init.sh: |
+    #!/bin/sh
+    /opt/bitnami/python/bin/python -m jupyterlab --ip=0.0.0.0 --port=8888 --no-browser --allow-root --LabApp.token='' & disown
