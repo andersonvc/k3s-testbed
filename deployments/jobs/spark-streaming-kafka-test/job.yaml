@@ -1,0 +1,26 @@
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: spark-streaming-kafka-job
+  namespace: core
+  labels:
+    jobgroup: kafka-streaming
+spec:
+  template:
+    metadata:
+      name: spark-streaming-kafka-job
+      labels:
+        jobgroup: kafka-streaming
+    spec:
+      restartPolicy: Never
+      containers:
+      - name: spark-streaming-kafka-job
+        image: registry.polyvaria.com/spark-streaming-kafka-job:0.1
+        imagePullPolicy: Always
+        volumeMounts:
+        - mountPath: "/mnt/data"
+          name: spark-data-pvc
+      volumes:
+      - name: spark-data-pvc
+        persistentVolumeClaim:
+          claimName: spark-data-pvc

@@ -33,3 +33,5 @@ cd deployments/airflow && ./install.sh && cd ../..
 cd deployments/kafka && ./install.sh && cd ../..
 
 cd deployments/kafka-ui && ./install.sh && cd ../..
+
+cd deployments/spark && ./install.sh && cd ../..

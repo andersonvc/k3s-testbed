@@ -13,7 +13,7 @@ helm upgrade airflow \
     --create-namespace \
     --namespace core \
     --values airflow_values.yaml \
-    --set webserver.defaultUser.password=$AIRFLOW_PASSWORD \
+    --set webserver.defaultUser.password=$TRAEFIK_PASSWORD \
     --set webserverSecretKey=$AIRFLOW_WEBSERVER_SECRET_KEY \
     --set dags.gitSync.knownHosts="$AIRFLOW_GITSYNC_HOST" \
     --debug \
