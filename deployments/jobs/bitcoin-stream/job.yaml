@@ -1,0 +1,49 @@
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: alpaca-btc-kafka-stream-job
+  namespace: core
+  labels:
+    jobgroup: kafka-streaming
+spec:
+  template:
+    metadata:
+      name: alpaca-btc-kafka-stream-job
+      labels:
+        jobgroup: kafka-streaming
+    spec:
+      restartPolicy: Never
+      containers:
+      - name: alpaca-btc-kafka-stream-job
+        image: registry.polyvaria.com/alpaca-crypto-client:0.0.1
+        ports:
+        - containerPort: 80
+        - containerPort: 8000
+        imagePullPolicy: Always
+        command: ["poetry", "run", "python", "/app/main.py"]
+        env:
+        - name: KAFKA_BROKER
+          valueFrom:
+            configMapKeyRef:
+              name: bitcoin-stream-config
+              key: KAFKA_BROKER
+        - name: KAFKA_TOPIC
+          valueFrom:
+            configMapKeyRef:
+              name: bitcoin-stream-config
+              key: KAFKA_TOPIC
+        - name: ALPACA_API_KEY
+          valueFrom:
+            secretKeyRef:
+              name: alpaca-secrets
+              key: key
+        - name: ALPACA_SECRET_KEY
+          valueFrom:
+            secretKeyRef:
+              name: alpaca-secrets
+              key: secret
+        - name: ALPACA_BASE_URL
+          valueFrom:
+            secretKeyRef:
+              name: alpaca-secrets
+              key: endpoint

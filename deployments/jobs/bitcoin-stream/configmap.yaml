@@ -1,0 +1,10 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: bitcoin-stream-config
+  namespace: core
+  labels:
+    app: bitcoin-stream-config
+data:
+  KAFKA_BROKER: 'polyvaria-cluster-kafka-brokers:9092'
+  KAFKA_TOPIC: alpaca-btc-stream
