@@ -6,5 +6,7 @@ metadata:
   labels:
     app: bitcoin-stream-config
 data:
-  KAFKA_BROKER: 'polyvaria-cluster-kafka-brokers:9092'
+  #KAFKA_BROKER: 'polyvaria-cluster-kafka-brokers:9090,polyvaria-cluster-kafka-brokers:9091,polyvaria-cluster-kafka-brokers:9092'
+  #KAFKA_BROKER: 'polyvaria-cluster-dual-role-0:9094,polyvaria-cluster-dual-role-1:9094,polyvaria-cluster-dual-role-2:9094'
+  KAFKA_BROKER: 'polyvaria-cluster-kafka-brokers.core:9090,polyvaria-cluster-kafka-brokers.core:9091,polyvaria-cluster-kafka-brokers.core:9092'
   KAFKA_TOPIC: alpaca-btc-stream

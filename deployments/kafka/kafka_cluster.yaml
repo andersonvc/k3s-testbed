@@ -6,7 +6,7 @@ metadata:
   labels:
     strimzi.io/cluster: polyvaria-cluster
 spec:
-  replicas: 1
+  replicas: 3
   roles:
     - controller
     - broker
@@ -15,7 +15,7 @@ spec:
     volumes:
       - id: 0
         type: persistent-claim
-        size: 1Gi
+        size: 3Gi
         deleteClaim: true
         kraftMetadata: shared
 ---
